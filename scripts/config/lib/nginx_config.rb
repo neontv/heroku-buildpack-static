@@ -69,6 +69,12 @@ class NginxConfig
     nameservers << [DEFAULT[:resolver]] unless nameservers.empty?
     json["resolver"] = nameservers.join(" ")
 
+    json["basic_auth"] ||= ""
+
+    unless json["basic_auth"] == ""
+      File.write("config/htpasswd", json["basic_auth"])
+    end
+
     json.each do |key, value|
       self.class.send(:define_method, key) { value }
     end
