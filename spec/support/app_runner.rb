@@ -14,12 +14,14 @@ class AppRunner
 
   attr_reader :proxy
 
-  def initialize(fixture, proxy = nil, env = {}, debug = false, delete = true)
+  def initialize(fixture, proxy = nil, env = {}, debug = false, delete = true,
+                headers: {})
     @run    = false
     @debug  = debug
     @proxy  = nil
     @delete = delete
     env.merge!("STATIC_DEBUG" => "true") if @debug
+    @headers = headers
 
     app_options = {
       "Image"      => BuildpackBuilder::TAG,
@@ -113,6 +115,7 @@ class AppRunner
         verify_mode: OpenSSL::SSL::VERIFY_NONE
       ) do |http|
         request = Net::HTTP::Get.new(uri.to_s)
+        @headers.each { |name, value| request.add_field(name, value) }
         http.request(request)
       end
     end

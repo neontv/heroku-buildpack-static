@@ -21,10 +21,12 @@ RSpec.describe "Simple" do
   end
 
   let(:proxy) { nil }
-  let(:app)   { AppRunner.new(name, proxy, env, @debug, !ENV['CIRCLECI']) }
+  let(:app)   { AppRunner.new(name, proxy, env, @debug, !ENV['CIRCLECI'],
+                              headers: headers) }
 
   let(:name)  { "hello_world" }
   let(:env)   { Hash.new }
+  let(:headers) { {} }
 
   it "should serve out of public_html by default" do
     response = app.get("/")
@@ -51,6 +53,47 @@ RSpec.describe "Simple" do
       response = app.get("/")
       expect(response.code).to eq("200")
       expect(response.body.chomp).to eq("Hello World")
+    end
+  end
+
+  describe "basic auth" do
+    let(:name) { "basic_auth" }
+
+    let(:auth) { Base64.encode64("#{username}:#{password}").chomp }
+
+    let :headers do
+      {
+        "Authorization" => "Basic #{auth}"
+      }
+    end
+
+    context "when no auth" do
+      let(:headers) { {} }
+
+      it "fails" do
+        response = app.get("/")
+        expect(response.code).to eq("401")
+      end
+    end
+
+    context "when invalid auth" do
+      let(:username) { "foo" }
+      let(:password) { "var" }
+
+      it "fails" do
+        response = app.get("/")
+        expect(response.code).to eq("401")
+      end
+    end
+
+    context "when valid auth" do
+      let(:username) { "foo" }
+      let(:password) { "bar" }
+
+      it "succeeds" do
+        response = app.get("/")
+        expect(response.code).to eq("200")
+      end
     end
   end
 
