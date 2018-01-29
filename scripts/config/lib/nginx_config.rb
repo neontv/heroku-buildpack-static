@@ -71,7 +71,7 @@ class NginxConfig
 
     json["basic_auth"] ||= ""
 
-    unless ENV["BASIC_AUTH"]
+    if ENV["BASIC_AUTH"]
       File.write("config/htpasswd", ENV["BASIC_AUTH"])
     end
 
