@@ -50,7 +50,7 @@ http {
     resolver <%= resolver %>;
   <% end %>
 
-    <% unless basic_auth == "" %>
+    <% if ENV["BASIC_AUTH"] %>
       auth_basic               "Here be dragons";
       auth_basic_user_file     "htpasswd";
     <% end %>
