@@ -71,8 +71,8 @@ class NginxConfig
 
     json["basic_auth"] ||= ""
 
-    unless json["basic_auth"] == ""
-      File.write("config/htpasswd", json["basic_auth"])
+    if ENV["BASIC_AUTH"]
+      File.write("config/htpasswd", ENV["BASIC_AUTH"])
     end
 
     json.each do |key, value|
